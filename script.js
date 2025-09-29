@@ -1,4 +1,3 @@
-function changeImage(productId, color) {
-  const mainImg = document.getElementById("main-" + productId);
-  mainImg.src = "img/" + productId + "-" + color + ".jpg";
+function changeImage(productId, imageFile) {
+  document.getElementById("main-" + productId).src = imageFile;
 }
