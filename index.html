@@ -1,200 +1,646 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketplace Baju</title>
-  <style>
-    /* ===============================
-       📝 INSTRUKSI EDIT
-       - Ubah CONFIG.WA_NUMBER ke nomor WhatsApp Anda.
-       - Tambah/ubah data produk di konstanta PRODUCTS.
-       - Deploy: cukup upload file ini ke GitHub repo (branch main/master)
-    =============================== */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Dasar -->
+    <title>Thrift Store - Baju Bekas Bermerek</title>
+    <meta name="description" content="Marketplace baju bekas bermerek (thrifting) berkualitas dengan kondisi terbaik. Pesan sekarang melalui WhatsApp.">
+    <meta name="keywords" content="thrifting, baju bekas, marketplace, fashion, preloved">
+    <meta name="author" content="Nama Toko Anda">
 
-    body { font-family: Arial, sans-serif; margin:0; background:#fafafa; }
-    header { text-align:center; padding:1rem; background:#333; color:#fff; }
-    .grid { 
-      display:grid; 
-      grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); 
-      gap:1rem; 
-      padding:1rem; 
-    }
-    .card {
-      background:#fff; border:1px solid #ddd; border-radius:6px; 
-      overflow:hidden; cursor:pointer; transition:transform .2s;
-    }
-    .card:hover { transform:translateY(-3px); }
-    .card img { width:100%; height:180px; object-fit:cover; }
-    .card .info { padding:0.5rem 0.8rem; }
-    .card .info h3 { margin:0; font-size:1.0rem; }
-    .card .info p { margin:0.2rem 0; color:#444; font-size:0.9rem; }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    /* Modal */
-    .modal {
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      display:none; justify-content:center; align-items:center;
-      background:rgba(0,0,0,0.6); z-index:999;
-    }
-    .modal.active { display:flex; }
-    .modal-content {
-      background:#fff; border-radius:6px; max-width:600px; width:95%; 
-      max-height:90%; overflow-y:auto; position:relative; padding:1rem;
-    }
-    .modal-close {
-      position:absolute; top:10px; right:10px; font-size:20px; cursor:pointer;
-    }
-    .gallery { display:flex; gap:0.5rem; margin:1rem 0; flex-wrap:wrap; }
-    .gallery img {
-      width:70px; height:70px; object-fit:cover; border:2px solid transparent; cursor:pointer;
-    }
-    .gallery img.selected { border-color:#333; }
-    .main-img { width:100%; height:280px; object-fit:cover; border-radius:4px; }
-    .qty { margin-top:1rem; }
-    button.order-btn {
-      display:block; width:100%; padding:0.8rem; background:#25d366;
-      color:#fff; border:none; border-radius:4px; font-size:1rem; cursor:pointer; margin-top:1rem;
-    }
-    button.order-btn:hover { background:#22bb58; }
+    <style>
+        /* ==================
+           CSS LENGKAP
+           ================== */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f4f6f8;
+            --card-background: #ffffff;
+            --text-color: #34495e;
+            --light-gray: #ecf0f1;
+            --success-color: #2ecc71;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
 
-    @media (max-width:600px){
-      .main-img { height:200px; }
-    }
-  </style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-background);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* Filter & Search */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .controls input, .controls select {
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            flex-grow: 1;
+        }
+
+        .controls input {
+            min-width: 250px;
+        }
+
+        .controls select {
+            min-width: 150px;
+        }
+
+        /* Product Grid */
+        #product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* Product Card */
+        .product-card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image-container {
+            position: relative;
+        }
+        
+        .product-condition {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(44, 62, 80, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+        }
+
+        .product-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .product-description {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .product-colors {
+            margin-bottom: 15px;
+        }
+        
+        .product-colors p, .product-sizes p {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 10px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--light-gray);
+            transition: transform 0.2s;
+        }
+
+        .color-swatch.active {
+            border-color: var(--secondary-color);
+            transform: scale(1.2);
+        }
+
+        .product-sizes {
+            margin-bottom: 20px;
+        }
+
+        .size-options select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .order-btn {
+            background-color: var(--success-color);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: auto; /* Pushes button to the bottom */
+        }
+
+        .order-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        #no-results {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #95a5a6;
+            display: none; /* Hidden by default */
+        }
+
+        /* Lightbox/Modal */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .lightbox-close, .lightbox-nav {
+            position: absolute;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+        .lightbox-close:hover, .lightbox-nav:hover {
+            opacity: 0.7;
+        }
+
+        .lightbox-close {
+            top: 15px;
+            right: 25px;
+        }
+
+        .lightbox-prev {
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .lightbox-next {
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            background: var(--card-background);
+        }
+
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Marketplace Baju</h1>
-  </header>
-  <main>
-    <div class="grid" id="productGrid"></div>
-  </main>
 
-  <!-- Modal -->
-  <div class="modal" id="productModal">
-    <div class="modal-content">
-      <span class="modal-close" id="modalClose">&times;</span>
-      <h2 id="modalName"></h2>
-      <img id="modalMainImg" class="main-img" src="" alt="">
-      <div class="gallery" id="modalGallery"></div>
-      <p id="modalDesc"></p>
-      <p><b>Harga:</b> Rp<span id="modalPrice"></span></p>
-      <p><b>Stok:</b> <span id="modalStock"></span></p>
-      <div class="qty">
-        <label>Jumlah: <input type="number" id="modalQty" min="1" value="1" style="width:60px;"></label>
-      </div>
-      <button class="order-btn" id="orderBtn">Order via WhatsApp</button>
+    <header>
+        <div class="container">
+            <h1>Thrift Store Keren</h1>
+            <p>Pakaian Bekas Bermerek, Kualitas Terjamin</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Kontrol Pencarian dan Filter -->
+        <div class="controls">
+            <input type="text" id="search-input" placeholder="Cari nama baju...">
+            <select id="filter-condition">
+                <option value="all">Semua Kondisi</option>
+                <option value="95%">Istimewa (95%)</option>
+                <option value="90%">Sangat Baik (90%)</option>
+                <option value="85%">Baik (85%)</option>
+            </select>
+            <select id="filter-price">
+                <option value="all">Semua Harga</option>
+                <option value="asc">Termurah</option>
+                <option value="desc">Termahal</option>
+            </select>
+        </div>
+
+        <!-- Grid Produk -->
+        <main id="product-grid"></main>
+        <div id="no-results">
+            <p>Produk tidak ditemukan.</p>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // ===============================
-    // 🔧 KONFIGURASI
-    const CONFIG = {
-      WA_NUMBER: "62812xxxx", // Ganti dengan nomor WhatsApp Anda tanpa +.
-    };
+    <!-- Lightbox/Modal untuk Gambar -->
+    <div id="image-lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <span class="lightbox-nav lightbox-prev">&#10094;</span>
+        <div class="lightbox-content">
+            <img src="" class="lightbox-img" alt="Tampilan Penuh Produk">
+        </div>
+        <span class="lightbox-nav lightbox-next">&#10095;</span>
+    </div>
 
-    // ===============================
-    // 📦 DATA PRODUK
-    const PRODUCTS = [
-      {
-        id:"P001",
-        name:"Kaos Polos Hitam",
-        price:75000,
-        stock:10,
-        images:[
-          "https://via.placeholder.com/400x400?text=P001+1",
-          "https://via.placeholder.com/400x400?text=P001+2",
-          "https://via.placeholder.com/400x400?text=P001+3",
-          "https://via.placeholder.com/400x400?text=P001+4"
-        ],
-        desc:"Kaos polos premium dengan bahan katun super nyaman."
-      },
-      {
-        id:"P002",
-        name:"Kemeja Flanel",
-        price:120000,
-        stock:5,
-        images:[
-          "https://via.placeholder.com/400x400?text=P002+1",
-          "https://via.placeholder.com/400x400?text=P002+2",
-          "https://via.placeholder.com/400x400?text=P002+3",
-          "https://via.placeholder.com/400x400?text=P002+4"
-        ],
-        desc:"Kemeja flanel cocok untuk santai maupun semi-formal."
-      }
-      // 👉 Tambahkan produk lain (sampai 20) dengan format sama.
-    ];
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Nama Toko Anda. All Rights Reserved.</p>
+        </div>
+    </footer>
 
-    // ===============================
-    // 🚀 RENDER GRID
-    const grid = document.getElementById("productGrid");
-    PRODUCTS.forEach(prod=>{
-      const card = document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
-        <img src="${prod.images[0]}" alt="${prod.name}">
-        <div class="info">
-          <h3>${prod.name}</h3>
-          <p>Rp${prod.price.toLocaleString()}</p>
-          <p>Stok: ${prod.stock}</p>
-        </div>`;
-      card.onclick=()=>openModal(prod);
-      grid.appendChild(card);
-    });
+    <script>
+    /* =====================
+       JAVASCRIPT LENGKAP
+       ===================== */
+    document.addEventListener('DOMContentLoaded', () => {
 
-    // ===============================
-    // 🪟 MODAL
-    const modal=document.getElementById("productModal");
-    const closeBtn=document.getElementById("modalClose");
+        // ==========================================================
+        // PENGATURAN UTAMA - GANTI DATA DI BAWAH INI
+        // ==========================================================
 
-    let currentProd=null;
-    let selectedImg="";
-    function openModal(prod){
-      currentProd=prod;
-      selectedImg=prod.images[0];
-      modal.classList.add("active");
-      document.getElementById("modalName").textContent=prod.name;
-      document.getElementById("modalMainImg").src=prod.images[0];
-      document.getElementById("modalDesc").textContent=prod.desc;
-      document.getElementById("modalPrice").textContent=prod.price.toLocaleString();
-      document.getElementById("modalStock").textContent=prod.stock;
-      document.getElementById("modalQty").value=1;
+        const WHATSAPP_NUMBER = '6281234567890'; // Ganti dengan nomor WhatsApp Anda (format 62...)
 
-      const gallery=document.getElementById("modalGallery");
-      gallery.innerHTML="";
-      prod.images.forEach((url,i)=>{
-        const img=document.createElement("img");
-        img.src=url;
-        if(i===0) img.classList.add("selected");
-        img.onclick=()=>{
-          document.querySelectorAll("#modalGallery img").forEach(el=>el.classList.remove("selected"));
-          img.classList.add("selected");
-          selectedImg=url;
-          document.getElementById("modalMainImg").src=url;
+        // GANTI DENGAN DATA PRODUK ANDA
+        const products = [
+            // Anda bisa copy-paste blok produk ini untuk menambahkan lebih banyak
+            {
+                id: 1,
+                name: "Kaos Original Levis",
+                price: 150000,
+                condition: "95%",
+                description: "Kaos Levis original bahan katun premium, adem dan nyaman.",
+                sizes: ["M", "L", "XL"],
+                images: [
+                    { colorName: "Putih", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" },
+                    { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" },
+                    { colorName: "Biru Navy", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" },
+                    { colorName: "Merah", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }
+                ]
+            },
+            // Saya akan duplikasi produk pertama sebanyak 20 kali dengan sedikit variasi
+            // sebagai contoh. SILAKAN GANTI DENGAN DATA PRODUK ASLI ANDA.
+            {
+                id: 2,
+                name: "Kemeja Flanel Uniqlo",
+                price: 180000,
+                condition: "90%",
+                description: "Kemeja flanel Uniqlo, tebal dan cocok untuk cuaca dingin.",
+                sizes: ["S", "M"],
+                images: [
+                    { colorName: "Merah Kotak", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" },
+                    { colorName: "Biru Kotak", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" },
+                    { colorName: "Hijau Kotak", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" },
+                    { colorName: "Kuning Kotak", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Celana Chino H&M",
+                price: 200000,
+                condition: "95%",
+                description: "Celana chino slim-fit dari H&M. Kondisi seperti baru.",
+                sizes: ["30", "32", "34"],
+                images: [
+                    { colorName: "Khaki", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" },
+                    { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" },
+                    { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" },
+                    { colorName: "Olive", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }
+                ]
+            },
+            {
+                id: 4,
+                name: "Jaket Denim Zara",
+                price: 250000,
+                condition: "85%",
+                description: "Jaket denim klasik dari Zara, sedikit pudar memberikan kesan vintage.",
+                sizes: ["L", "XL"],
+                images: [
+                    { colorName: "Biru Muda", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" },
+                    { colorName: "Biru Tua", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" },
+                    { colorName: "Hitam", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" },
+                    { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }
+                ]
+            },
+            // ... (Duplikasi produk untuk mencapai 20 item)
+            // Saya akan menambahkan beberapa lagi untuk contoh
+            { id: 5, name: "Polo Shirt Ralph Lauren", price: 220000, condition: "90%", description: "Polo shirt original, warna cerah.", sizes: ["M"], images: [ { colorName: "Kuning", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Biru", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Pink", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Hijau", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 6, name: "Sweater Champion", price: 190000, condition: "95%", description: "Sweater crewneck Champion, bahan tebal.", sizes: ["L", "XL"], images: [ { colorName: "Abu Misty", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Putih", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Maroon", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 7, name: "Hoodie Adidas", price: 280000, condition: "90%", description: "Hoodie original Adidas dengan logo trefoil.", sizes: ["M", "L"], images: [ { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Biru", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Merah", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 8, name: "Kaos Nike Dri-Fit", price: 120000, condition: "85%", description: "Kaos olahraga Nike, cocok untuk lari.", sizes: ["S", "M", "L"], images: [ { colorName: "Putih", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Volt", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Biru", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 9, name: "Celana Jeans Levis 501", price: 350000, condition: "90%", description: "Jeans Levis 501 original, model straight fit.", sizes: ["32", "33"], images: [ { colorName: "Biru Klasik", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam Pekat", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Abu Pudar", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Biru Pudar", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 10, name: "Jaket Bomber Pull&Bear", price: 230000, condition: "95%", description: "Jaket bomber stylish, bahan parasut.", sizes: ["L"], images: [ { colorName: "Hijau Army", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Maroon", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Navy", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 11, name: "Kemeja Kotak Erigo", price: 160000, condition: "90%", description: "Kemeja kotak Erigo, model oversize.", sizes: ["All Size"], images: [ { colorName: "Coklat", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam Putih", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Biru Kuning", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Hijau", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 12, name: "Celana Kargo The North Face", price: 300000, condition: "85%", description: "Celana kargo outdoor, banyak saku.", sizes: ["34"], images: [ { colorName: "Beige", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Hijau Tua", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 13, name: "T-shirt Stussy", price: 180000, condition: "90%", description: "Kaos Stussy grafis, sablon masih bagus.", sizes: ["M", "L"], images: [ { colorName: "Putih", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Pink", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Biru Langit", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 14, name: "Jeans Skinny Topman", price: 210000, condition: "95%", description: "Jeans skinny fit, bahan stretch.", sizes: ["31"], images: [ { colorName: "Hitam Washed", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Biru Dongker", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Abu", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Biru Pudar", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 15, name: "Cardigan Muji", price: 175000, condition: "95%", description: "Cardigan rajut dari Muji, lembut.", sizes: ["M"], images: [ { colorName: "Coklat Muda", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Navy", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 16, name: "Batik Keris Modern", price: 140000, condition: "90%", description: "Kemeja batik lengan pendek modern.", sizes: ["L", "XL"], images: [ { colorName: "Coklat", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Biru", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Merah", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" } ] },
+            { id: 17, name: "Jaket Windbreaker Eiger", price: 260000, condition: "85%", description: "Jaket tipis penahan angin.", sizes: ["L"], images: [ { colorName: "Merah", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Biru", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Kuning", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" } ] },
+            { id: 18, name: "Celana Jogger Nike Tech", price: 320000, condition: "90%", description: "Jogger sporty bahan premium.", sizes: ["M"], images: [ { colorName: "Abu-abu", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Hijau Army", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Biru Navy", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 19, name: "Kaos Polos Giordano", price: 90000, condition: "95%", description: "Kaos polos basic, bahan nyaman.", sizes: ["S", "M", "L", "XL"], images: [ { colorName: "Putih", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Abu Misty", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Navy", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] },
+            { id: 20, name: "Kemeja Pantai Billabong", price: 150000, condition: "90%", description: "Kemeja rayon adem motif pantai.", sizes: ["L"], images: [ { colorName: "Biru Motif", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" }, { colorName: "Putih Motif", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" }, { colorName: "Hitam Motif", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" }, { colorName: "Kuning Motif", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" } ] }
+        ];
+
+        // ==========================================================
+        // AKHIR DARI PENGATURAN - JANGAN UBAH KODE DI BAWAH INI
+        // KECUALI ANDA MENGERTI
+        // ==========================================================
+
+        const productGrid = document.getElementById('product-grid');
+        const searchInput = document.getElementById('search-input');
+        const conditionFilter = document.getElementById('filter-condition');
+        const priceFilter = document.getElementById('filter-price');
+        const noResults = document.getElementById('no-results');
+        
+        // Lightbox elements
+        const lightbox = document.getElementById('image-lightbox');
+        const lightboxImg = lightbox.querySelector('.lightbox-img');
+        const lightboxClose = lightbox.querySelector('.lightbox-close');
+        const lightboxPrev = lightbox.querySelector('.lightbox-prev');
+        const lightboxNext = lightbox.querySelector('.lightbox-next');
+
+        let currentLightboxImages = [];
+        let currentLightboxIndex = 0;
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
         }
-        gallery.appendChild(img);
-      });
-    }
 
-    closeBtn.onclick=()=>modal.classList.remove("active");
-    window.onclick=(e)=>{ if(e.target===modal) modal.classList.remove("active"); }
+        function renderProducts(productsToRender) {
+            productGrid.innerHTML = '';
+            if (productsToRender.length === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+            
+            productsToRender.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.dataset.productId = product.id;
 
-    // ===============================
-    // 📲 ORDER VIA WA
-    const orderBtn=document.getElementById("orderBtn");
-    orderBtn.onclick=()=>{
-      const qty=parseInt(document.getElementById("modalQty").value);
-      const msg = 
-        `Halo, saya mau pesan:\n`+
-        `Produk: ${currentProd.name}\n`+
-        `ID: ${currentProd.id}\n`+
-        `Qty: ${qty}\n`+
-        `Harga: Rp${currentProd.price.toLocaleString()}\n`+
-        `Link Gambar: ${selectedImg}`;
-      const url = `https://wa.me/${CONFIG.WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-      window.open(url,'_blank');
-    }
-  </script>
+                const colorSwatchesHTML = product.images.map((img, index) => `
+                    <div class="color-swatch ${index === 0 ? 'active' : ''}" 
+                         style="background-color: ${img.colorName.toLowerCase().replace(' ', '')};" 
+                         title="${img.colorName}"
+                         data-image-url="${img.imageUrl}"
+                         data-color-name="${img.colorName}">
+                    </div>
+                `).join('');
+                
+                const sizeOptionsHTML = product.sizes && product.sizes.length > 0 
+                    ? `
+                    <div class="product-sizes">
+                        <p>Ukuran:</p>
+                        <div class="size-options">
+                            <select class="size-select">
+                                ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    ` : '';
+
+                card.innerHTML = `
+                    <div class="product-image-container">
+                        <img src="${product.images[0].imageUrl}" alt="${product.name}" class="product-image" loading="lazy">
+                        <span class="product-condition">Kondisi: ${product.condition}</span>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <p class="product-price">${formatPrice(product.price)}</p>
+                        <div class="product-colors">
+                            <p>Warna: <span class="selected-color-name">${product.images[0].colorName}</span></p>
+                            <div class="color-swatches">${colorSwatchesHTML}</div>
+                        </div>
+                        ${sizeOptionsHTML}
+                        <a href="#" class="order-btn">Order via WhatsApp</a>
+                    </div>
+                `;
+                productGrid.appendChild(card);
+            });
+        }
+        
+        function applyFilters() {
+            let filteredProducts = [...products];
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCondition = conditionFilter.value;
+            const selectedPriceSort = priceFilter.value;
+
+            // Search filter
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
+            }
+
+            // Condition filter
+            if (selectedCondition !== 'all') {
+                filteredProducts = filteredProducts.filter(p => p.condition === selectedCondition);
+            }
+
+            // Price sort
+            if (selectedPriceSort === 'asc') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (selectedPriceSort === 'desc') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+
+            renderProducts(filteredProducts);
+        }
+
+        // Event Listeners for controls
+        searchInput.addEventListener('input', applyFilters);
+        conditionFilter.addEventListener('change', applyFilters);
+        priceFilter.addEventListener('change', applyFilters);
+
+        // Event Delegation for product cards
+        productGrid.addEventListener('click', e => {
+            const target = e.target;
+            const card = target.closest('.product-card');
+            if (!card) return;
+
+            // Handle color swatch click
+            if (target.classList.contains('color-swatch')) {
+                const mainImage = card.querySelector('.product-image');
+                const selectedColorNameEl = card.querySelector('.selected-color-name');
+                mainImage.src = target.dataset.imageUrl;
+                selectedColorNameEl.textContent = target.dataset.colorName;
+
+                // Update active state
+                card.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+                target.classList.add('active');
+            }
+
+            // Handle order button click
+            if (target.classList.contains('order-btn')) {
+                e.preventDefault();
+                const productName = card.querySelector('.product-name').textContent;
+                const selectedColor = card.querySelector('.color-swatch.active').dataset.colorName;
+                const sizeSelect = card.querySelector('.size-select');
+                const selectedSize = sizeSelect ? sizeSelect.value : 'Tidak ada pilihan';
+
+                const message = `Halo, saya ingin memesan produk berikut:
+- Nama: ${productName}
+- Warna: ${selectedColor}
+- Ukuran: ${selectedSize}
+
+Mohon info ketersediaannya. Terima kasih.`;
+                
+                const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+            
+            // Handle image click to open lightbox
+            if (target.classList.contains('product-image')) {
+                const productId = parseInt(card.dataset.productId);
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    currentLightboxImages = product.images.map(img => img.imageUrl);
+                    const currentImageSrc = target.src;
+                    currentLightboxIndex = currentLightboxImages.findIndex(url => url === currentImageSrc);
+                    updateLightboxImage();
+                    lightbox.classList.add('active');
+                }
+            }
+        });
+        
+        // Lightbox functionality
+        function updateLightboxImage() {
+            if (currentLightboxImages.length > 0) {
+                lightboxImg.src = currentLightboxImages[currentLightboxIndex];
+            }
+        }
+
+        function showNextImage() {
+            currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxImages.length;
+            updateLightboxImage();
+        }
+
+        function showPrevImage() {
+            currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
+            updateLightboxImage();
+        }
+
+        lightboxClose.addEventListener('click', () => lightbox.classList.remove('active'));
+        lightboxNext.addEventListener('click', showNextImage);
+        lightboxPrev.addEventListener('click', showPrevImage);
+        lightbox.addEventListener('click', e => {
+            if (e.target === lightbox) { // Close if clicking on the background
+                lightbox.classList.remove('active');
+            }
+        });
+        
+        // Keyboard navigation for lightbox
+        document.addEventListener('keydown', e => {
+            if (lightbox.classList.contains('active')) {
+                if (e.key === 'ArrowRight') showNextImage();
+                if (e.key === 'ArrowLeft') showPrevImage();
+                if (e.key === 'Escape') lightbox.classList.remove('active');
+            }
+        });
+
+
+        // Initial Render
+        renderProducts(products);
+    });
+    </script>
 </body>
 </html>
