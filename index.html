@@ -3,90 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toko Baju Preloved</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Marketplace Baju</title>
+  <style>
+    /* ===============================
+       📝 INSTRUKSI EDIT
+       - Ubah CONFIG.WA_NUMBER ke nomor WhatsApp Anda.
+       - Tambah/ubah data produk di konstanta PRODUCTS.
+       - Deploy: cukup upload file ini ke GitHub repo (branch main/master)
+    =============================== */
+
+    body { font-family: Arial, sans-serif; margin:0; background:#fafafa; }
+    header { text-align:center; padding:1rem; background:#333; color:#fff; }
+    .grid { 
+      display:grid; 
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); 
+      gap:1rem; 
+      padding:1rem; 
+    }
+    .card {
+      background:#fff; border:1px solid #ddd; border-radius:6px; 
+      overflow:hidden; cursor:pointer; transition:transform .2s;
+    }
+    .card:hover { transform:translateY(-3px); }
+    .card img { width:100%; height:180px; object-fit:cover; }
+    .card .info { padding:0.5rem 0.8rem; }
+    .card .info h3 { margin:0; font-size:1.0rem; }
+    .card .info p { margin:0.2rem 0; color:#444; font-size:0.9rem; }
+
+    /* Modal */
+    .modal {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      display:none; justify-content:center; align-items:center;
+      background:rgba(0,0,0,0.6); z-index:999;
+    }
+    .modal.active { display:flex; }
+    .modal-content {
+      background:#fff; border-radius:6px; max-width:600px; width:95%; 
+      max-height:90%; overflow-y:auto; position:relative; padding:1rem;
+    }
+    .modal-close {
+      position:absolute; top:10px; right:10px; font-size:20px; cursor:pointer;
+    }
+    .gallery { display:flex; gap:0.5rem; margin:1rem 0; flex-wrap:wrap; }
+    .gallery img {
+      width:70px; height:70px; object-fit:cover; border:2px solid transparent; cursor:pointer;
+    }
+    .gallery img.selected { border-color:#333; }
+    .main-img { width:100%; height:280px; object-fit:cover; border-radius:4px; }
+    .qty { margin-top:1rem; }
+    button.order-btn {
+      display:block; width:100%; padding:0.8rem; background:#25d366;
+      color:#fff; border:none; border-radius:4px; font-size:1rem; cursor:pointer; margin-top:1rem;
+    }
+    button.order-btn:hover { background:#22bb58; }
+
+    @media (max-width:600px){
+      .main-img { height:200px; }
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Marketplace Baju</h1>
+  </header>
+  <main>
+    <div class="grid" id="productGrid"></div>
+  </main>
 
-<header>
-  <h1>Toko Baju Preloved</h1>
-  <p>Baju branded bekas, masih oke untuk gaya masa kini 😎</p>
-</header>
-
-<main class="product-grid">
-
-  <!-- PRODUK 1 -->
-  <div class="card">
-    <img src="kaos_ori_levis_1720148572_4c656c22_progressive.jpg"
-         alt="Kaos Levis warna merah"
-         class="main-img"
-         id="main-p001">
-
-    <div class="thumbnails">
-      <img src="kaos_ori_levis_1720148572_4c656c22_progressive.jpg"
-           alt="Kaos Levis merah"
-           onclick="changeImage('p001','kaos_ori_levis_1720148572_4c656c22_progressive.jpg')">
-      <img src="kaos_ori_levis_varian_biru.jpg"
-           alt="Kaos Levis biru"
-           onclick="changeImage('p001','kaos_ori_levis_varian_biru.jpg')">
-      <img src="kaos_ori_levis_varian_hitam.jpg"
-           alt="Kaos Levis hitam"
-           onclick="changeImage('p001','kaos_ori_levis_varian_hitam.jpg')">
-      <img src="kaos_ori_levis_varian_putih.jpg"
-           alt="Kaos Levis putih"
-           onclick="changeImage('p001','kaos_ori_levis_varian_putih.jpg')">
+  <!-- Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <h2 id="modalName"></h2>
+      <img id="modalMainImg" class="main-img" src="" alt="">
+      <div class="gallery" id="modalGallery"></div>
+      <p id="modalDesc"></p>
+      <p><b>Harga:</b> Rp<span id="modalPrice"></span></p>
+      <p><b>Stok:</b> <span id="modalStock"></span></p>
+      <div class="qty">
+        <label>Jumlah: <input type="number" id="modalQty" min="1" value="1" style="width:60px;"></label>
+      </div>
+      <button class="order-btn" id="orderBtn">Order via WhatsApp</button>
     </div>
-
-    <h2>Kaos Original Levis</h2>
-    <p><strong>Brand:</strong> Levis</p>
-    <p><strong>Kondisi:</strong> Bekas (Levis)</p>
-    <p><strong>Size:</strong> L</p>
-    <p class="harga">Rp 150.000</p>
-    <a class="wa-btn"
-       href="https://wa.me/6281234567890?text=Halo,%20saya%20mau%20pesan:%20Kaos%20Original%20Levis%20(ID:%20p001)"
-       target="_blank">
-       Order via WhatsApp
-    </a>
   </div>
 
-  <!-- PRODUK 2 -->
-  <div class="card">
-    <img src="tshirt_uniqlo_001.jpg"
-         alt="T-shirt Uniqlo warna abu"
-         class="main-img"
-         id="main-p002">
+  <script>
+    // ===============================
+    // 🔧 KONFIGURASI
+    const CONFIG = {
+      WA_NUMBER: "62812xxxx", // Ganti dengan nomor WhatsApp Anda tanpa +.
+    };
 
-    <div class="thumbnails">
-      <img src="tshirt_uniqlo_001.jpg"
-           alt="T-shirt Uniqlo abu"
-           onclick="changeImage('p002','tshirt_uniqlo_001.jpg')">
-      <img src="tshirt_uniqlo_blue.jpg"
-           alt="T-shirt Uniqlo biru"
-           onclick="changeImage('p002','tshirt_uniqlo_blue.jpg')">
-      <img src="tshirt_uniqlo_white.jpg"
-           alt="T-shirt Uniqlo putih"
-           onclick="changeImage('p002','tshirt_uniqlo_white.jpg')">
-      <img src="tshirt_uniqlo_black.jpg"
-           alt="T-shirt Uniqlo hitam"
-           onclick="changeImage('p002','tshirt_uniqlo_black.jpg')">
-    </div>
+    // ===============================
+    // 📦 DATA PRODUK
+    const PRODUCTS = [
+      {
+        id:"P001",
+        name:"Kaos Polos Hitam",
+        price:75000,
+        stock:10,
+        images:[
+          "https://via.placeholder.com/400x400?text=P001+1",
+          "https://via.placeholder.com/400x400?text=P001+2",
+          "https://via.placeholder.com/400x400?text=P001+3",
+          "https://via.placeholder.com/400x400?text=P001+4"
+        ],
+        desc:"Kaos polos premium dengan bahan katun super nyaman."
+      },
+      {
+        id:"P002",
+        name:"Kemeja Flanel",
+        price:120000,
+        stock:5,
+        images:[
+          "https://via.placeholder.com/400x400?text=P002+1",
+          "https://via.placeholder.com/400x400?text=P002+2",
+          "https://via.placeholder.com/400x400?text=P002+3",
+          "https://via.placeholder.com/400x400?text=P002+4"
+        ],
+        desc:"Kemeja flanel cocok untuk santai maupun semi-formal."
+      }
+      // 👉 Tambahkan produk lain (sampai 20) dengan format sama.
+    ];
 
-    <h2>T-shirt Basic Uniqlo</h2>
-    <p><strong>Brand:</strong> Uniqlo</p>
-    <p><strong>Kondisi:</strong> Bekas (Uniqlo)</p>
-    <p><strong>Size:</strong> M</p>
-    <p class="harga">Rp 90.000</p>
-    <a class="wa-btn"
-       href="https://wa.me/6281234567890?text=Halo,%20saya%20mau%20pesan:%20Tshirt%20Basic%20Uniqlo%20(ID:%20p002)"
-       target="_blank">
-       Order via WhatsApp
-    </a>
-  </div>
+    // ===============================
+    // 🚀 RENDER GRID
+    const grid = document.getElementById("productGrid");
+    PRODUCTS.forEach(prod=>{
+      const card = document.createElement("div");
+      card.className="card";
+      card.innerHTML=`
+        <img src="${prod.images[0]}" alt="${prod.name}">
+        <div class="info">
+          <h3>${prod.name}</h3>
+          <p>Rp${prod.price.toLocaleString()}</p>
+          <p>Stok: ${prod.stock}</p>
+        </div>`;
+      card.onclick=()=>openModal(prod);
+      grid.appendChild(card);
+    });
 
-  <!-- Ulangi hingga 25 produk -->
+    // ===============================
+    // 🪟 MODAL
+    const modal=document.getElementById("productModal");
+    const closeBtn=document.getElementById("modalClose");
 
-</main>
+    let currentProd=null;
+    let selectedImg="";
+    function openModal(prod){
+      currentProd=prod;
+      selectedImg=prod.images[0];
+      modal.classList.add("active");
+      document.getElementById("modalName").textContent=prod.name;
+      document.getElementById("modalMainImg").src=prod.images[0];
+      document.getElementById("modalDesc").textContent=prod.desc;
+      document.getElementById("modalPrice").textContent=prod.price.toLocaleString();
+      document.getElementById("modalStock").textContent=prod.stock;
+      document.getElementById("modalQty").value=1;
 
-<script src="script.js"></script>
+      const gallery=document.getElementById("modalGallery");
+      gallery.innerHTML="";
+      prod.images.forEach((url,i)=>{
+        const img=document.createElement("img");
+        img.src=url;
+        if(i===0) img.classList.add("selected");
+        img.onclick=()=>{
+          document.querySelectorAll("#modalGallery img").forEach(el=>el.classList.remove("selected"));
+          img.classList.add("selected");
+          selectedImg=url;
+          document.getElementById("modalMainImg").src=url;
+        }
+        gallery.appendChild(img);
+      });
+    }
+
+    closeBtn.onclick=()=>modal.classList.remove("active");
+    window.onclick=(e)=>{ if(e.target===modal) modal.classList.remove("active"); }
+
+    // ===============================
+    // 📲 ORDER VIA WA
+    const orderBtn=document.getElementById("orderBtn");
+    orderBtn.onclick=()=>{
+      const qty=parseInt(document.getElementById("modalQty").value);
+      const msg = 
+        `Halo, saya mau pesan:\n`+
+        `Produk: ${currentProd.name}\n`+
+        `ID: ${currentProd.id}\n`+
+        `Qty: ${qty}\n`+
+        `Harga: Rp${currentProd.price.toLocaleString()}\n`+
+        `Link Gambar: ${selectedImg}`;
+      const url = `https://wa.me/${CONFIG.WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+      window.open(url,'_blank');
+    }
+  </script>
 </body>
 </html>
