@@ -357,7 +357,7 @@
         // PENGATURAN UTAMA - GANTI DATA DI BAWAH INI
         // ==========================================================
 
-        const WHATSAPP_NUMBER = '6281234567890'; // Ganti dengan nomor WhatsApp Anda (format 62...)
+        const WHATSAPP_NUMBER = '62 857-5776-5847'; // Ganti dengan nomor WhatsApp Anda (format 62...)
 
         // GANTI DENGAN DATA PRODUK ANDA
         const products = [
@@ -368,12 +368,12 @@
                 price: 150000,
                 condition: "95%",
                 description: "Kaos Levis original bahan katun premium, adem dan nyaman.",
-                sizes: ["M", "L", "XL"],
+                sizes: ["M"],
                 images: [
-                    { colorName: "Putih", imageUrl: "https://i.ibb.co/C0wV2gN/kaos-ori-levis-1720148572-4c656c22-progressive.jpg" },
-                    { colorName: "Hitam", imageUrl: "https://i.ibb.co/d622gGk/kaos-ori-levis-black.jpg" },
-                    { colorName: "Biru Navy", imageUrl: "https://i.ibb.co/pwnL2m9/kaos-ori-levis-navy.jpg" },
-                    { colorName: "Merah", imageUrl: "https://i.ibb.co/qj5Vq61/kaos-ori-levis-red.jpg" }
+                    { colorName: "1", imageUrl: "https://i.ibb.co.com/Kxc2MPHw/kaos-ori-levis-01.jpg" },
+                    { colorName: "2", imageUrl: "https://i.ibb.co.com/1YV2by84/kaos-ori-levis-04.jpg" },
+                    { colorName: "3", imageUrl: "https://i.ibb.co.com/LX3FKBxH/Kaos-ori-levis-03.jpg" },
+                    { colorName: "4", imageUrl: "https://i.ibb.co.com/MD5VX0w2/kaos-ori-levis-02.jpg" }
                 ]
             },
             // Saya akan duplikasi produk pertama sebanyak 20 kali dengan sedikit variasi
@@ -509,7 +509,7 @@
                         <p class="product-description">${product.description}</p>
                         <p class="product-price">${formatPrice(product.price)}</p>
                         <div class="product-colors">
-                            <p>Warna: <span class="selected-color-name">${product.images[0].colorName}</span></p>
+                            <p>Info: <span class="selected-color-name">${product.images[0].colorName}</span></p>
                             <div class="color-swatches">${colorSwatchesHTML}</div>
                         </div>
                         ${sizeOptionsHTML}
